@@ -540,7 +540,7 @@ function handleVsCodeMessage(event: { data: ReceivedMessageFromVsCode }) {
 		}
 
 		default: {
-			_error('received unknown message from vs code')
+			console.warn(`received unknown message from vs code: ${JSON.stringify(message)}`)
 			notExhaustiveSwitch(message)
 			break
 		}
