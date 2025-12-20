@@ -1043,7 +1043,8 @@ function debounce(func: Function, wait: number, immediate = false) {
 }
 
 function _error(text: string) {
-	postVsError(text)
+	// postVsError(text)
+	console.error(text)
 	throw new Error(text)
 }
 
