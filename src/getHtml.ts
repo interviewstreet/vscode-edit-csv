@@ -1008,23 +1008,23 @@ export function createEditorHtml(webview: vscode.Webview, context: vscode.Extens
 
 
 	<script async type="module" src="${toolkit}"></script>
-	<script src="${dayJS}"></script>
-	<script src="${dayJSPlugins1}"></script>
-	<script src="${handsontableJs}"></script>
-	<script src="${papaparseJs}"></script>
-	<script src="${mousetrapJs}"></script>
-	<script src="${mousetrapBindGlobalJs}"></script>
-	<script src="${bigJs}"></script>
-	<script src="${bigJsToFormat}"></script>
-	<script src="${regressionJS}"></script>
+	<script defer src="${dayJS}"></script>
+	<script defer src="${dayJSPlugins1}"></script>
+	<script defer src="${handsontableJs}"></script>
+	<script defer src="${papaparseJs}"></script>
+	<script defer src="${mousetrapJs}"></script>
+	<script defer src="${mousetrapBindGlobalJs}"></script>
+	<script defer src="${bigJs}"></script>
+	<script defer src="${bigJsToFormat}"></script>
+	<script defer src="${regressionJS}"></script>
 
-	<script src="${progressJs}"></script>
-	<script src="${findWidgetJs}"></script>
-	<script src="${ioJs}"></script>
-	<script src="${autoFillJs}"></script>
-	<script src="${utilJs}"></script>
-	<script src="${uiJs}"></script>
-	<script src="${mainJs}"></script>
+	<script defer src="${progressJs}"></script>
+	<script defer src="${findWidgetJs}"></script>
+	<script defer src="${ioJs}"></script>
+	<script defer src="${autoFillJs}"></script>
+	<script defer src="${utilJs}"></script>
+	<script defer src="${uiJs}"></script>
+	<script defer src="${mainJs}"></script>
 
 	</body>
 </html>`
