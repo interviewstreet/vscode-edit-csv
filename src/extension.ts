@@ -932,7 +932,8 @@ function getActiveEditorInstance(instanceManager: InstanceManager): Instance | n
 }
 
 function notExhaustive(x: never, message: string): never {
-	vscode.window.showErrorMessage(message);
+	// vscode.window.showErrorMessage(message);
+	console.error(message)
 	throw new Error(message)
 }
 

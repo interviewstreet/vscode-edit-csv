@@ -743,7 +743,8 @@ function getActiveEditorInstance(instanceManager) {
     return instance;
 }
 function notExhaustive(x, message) {
-    vscode.window.showErrorMessage(message);
+    // vscode.window.showErrorMessage(message);
+    console.error(message);
     throw new Error(message);
 }
 function setEditorHasChanges(instance, hasChanges) {

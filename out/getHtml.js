@@ -739,7 +739,14 @@ function createEditorHtml(webview, context, config, initialVars) {
 
 				<!-- main editor/grid area -->
 				<div id="csv-editor-wrapper" class="csv-editor-wrapper">
-					<div id="csv-editor">No data received</div>
+					<div id="csv-editor" style="height: 100%; width: 100%;">
+						<div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; font-family: var(--vscode-font-family); color: var(--vscode-foreground);">
+							<div style="text-align: center;">
+								<div class="csv-loading-spinner" style="border: 3px solid transparent; border-top: 3px solid var(--vscode-progressBar-background, #0078d4); border-right: 3px solid var(--vscode-progressBar-background, #0078d4); border-radius: 50%; width: 48px; height: 48px; animation: csv-spinner-spin 0.8s linear infinite; margin: 0 auto 24px;"></div>
+								<div style="font-size: 13px; font-weight: 400; color: var(--vscode-foreground); opacity: 0.85; font-family: var(--vscode-font-family);">Loading CSV...</div>
+							</div>
+						</div>
+					</div>
 				</div>
 
 			</div>
@@ -944,6 +951,10 @@ function createEditorHtml(webview, context, config, initialVars) {
 				font-family: 'Font Awesome 5 Free';
 				font-weight: 900;
 				src: url("${iconFont}") format("woff2");
+			}
+			@keyframes csv-spinner-spin {
+				0% { transform: rotate(0deg); }
+				100% { transform: rotate(360deg); }
 			}
 		</style>
 

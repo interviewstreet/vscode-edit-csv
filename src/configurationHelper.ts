@@ -94,9 +94,7 @@ export function getExtensionConfiguration(): EditCsvConfig {
 	copy.readOption_escapeChar = limitSingleCharacterString(copy.readOption_escapeChar)
 	copy.writeOption_quoteChar = limitSingleCharacterString(copy.writeOption_quoteChar)
 	copy.writeOption_escapeChar = limitSingleCharacterString(copy.writeOption_escapeChar)
-
-	console.log(`[edit csv] settings`, copy)
-
+	
 	return copy
 }
 
