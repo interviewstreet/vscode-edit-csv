@@ -642,7 +642,21 @@ function createNewEditorInstance(
 			// 	break
 			// }
 
-			default: notExhaustive(message, `Received unknown post message from extension: ${JSON.stringify(message)}`)
+			default: {
+				try {
+					const messageStr =
+						typeof message === "string" ? message : JSON.stringify(message);
+
+					if (!/"rpc_[a-zA-Z0-9]+"/.test(messageStr)) {
+						notExhaustive(
+							message,
+							`Received unknown post message from extension: ${JSON.stringify(
+								message
+							)}`
+						);
+					}
+				} catch {}
+			}
 		}
 
 	}, undefined, context.subscriptions)

@@ -520,7 +520,15 @@ function createNewEditorInstance(context, activeTextEditorOrDocument, instanceMa
             // 	vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(message.url))
             // 	break
             // }
-            default: notExhaustive(message, `Received unknown post message from extension: ${JSON.stringify(message)}`);
+            default: {
+                try {
+                    const messageStr = typeof message === "string" ? message : JSON.stringify(message);
+                    if (!/"rpc_[a-zA-Z0-9]+"/.test(messageStr)) {
+                        notExhaustive(message, `Received unknown post message from extension: ${JSON.stringify(message)}`);
+                    }
+                }
+                catch (_a) { }
+            }
         }
     }, undefined, context.subscriptions);
     panel.onDidDispose(() => {

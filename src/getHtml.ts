@@ -1,6 +1,17 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+// Set to false for production (uses CDN), true for local development
+const isDev = false;
+
+// CDN URLs - update these with your CDN base URL
+const CDN_BASE_URL = 'https://hrcdn.net/vscode-ide-csv-editor-ext/v1/assets';
+const CDN_URLS = {
+	mainCss: `${CDN_BASE_URL}/index.min.css`,
+	handsontableCss: `${CDN_BASE_URL}/handsontable.min.css`,
+	fontAwesomeCss: `${CDN_BASE_URL}/fontawesome.min.css`
+};
+
 /**
  * returns a local file path relative to the extension root dir
  * @param filePath 
@@ -22,30 +33,25 @@ export function createEditorHtml(webview: vscode.Webview, context: vscode.Extens
 
 	const _getResourcePath = getResourcePath.bind(undefined, webview, context)
 
-	let handsontableCss = _getResourcePath('thirdParty/handsontable/handsontable.min.css')
-	// let handsontableCss = _getResourcePath('thirdParty/handsontable/handsontable.css')
+	let handsontableCss = isDev ? _getResourcePath('thirdParty/handsontable/handsontable.min.css') : CDN_URLS.handsontableCss
+	let fontAwesomeCss = isDev ? _getResourcePath('thirdParty/fortawesome/fontawesome-free/css/all.min.css') : CDN_URLS.fontAwesomeCss
+	const iconFont = _getResourcePath('thirdParty/fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2')
+	
+	// Combined CSS for CSV editor (all themes in one file)
+	const mainCss = isDev ? _getResourcePath('csvEditorHtml/main.css') : CDN_URLS.mainCss
+	const darkThemeCss = isDev ? _getResourcePath('csvEditorHtml/dark.css') : ''
+	const lightThemeCss = isDev ? _getResourcePath('csvEditorHtml/light.css') : ''
+	const hightContrastThemeCss = isDev ? _getResourcePath('csvEditorHtml/high_contrast.css') : ''
+	const settingsOverwriteCss = isDev ? _getResourcePath('csvEditorHtml/settingsOverwrite.css') : ''
+
+	// JavaScript files
 	let handsontableJs = _getResourcePath('thirdParty/handsontable/handsontable.min.js')
-	// let handsontableJs = _getResourcePath('thirdParty/handsontable/handsontable.js')
 	let papaparseJs = _getResourcePath('thirdParty/papaparse/papaparse.min.umd.js')
-	// let papaparseJs = _getResourcePath('thirdParty/papaparse/papaparse.umd.js')
-
 	let regressionJS = _getResourcePath('thirdParty/regression/regression.min.js')
-
 	const mousetrapJs = _getResourcePath('thirdParty/mousetrap/mousetrap.min.js')
 	const mousetrapBindGlobalJs = _getResourcePath('thirdParty/mousetrap/plugins/global-bind/mousetrap-global-bind.min.js')
-
 	const bigJs = _getResourcePath('thirdParty/big.js/big.min.js')
 	const bigJsToFormat = _getResourcePath('thirdParty/toFormat/toFormat.min.js')
-
-	let fontAwesomeCss = _getResourcePath('thirdParty/fortawesome/fontawesome-free/css/all.min.css')
-	//we need to load the font manually because the url() seems to not work properly with vscode-resource
-	const iconFont = _getResourcePath('thirdParty/fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2')
-
-	const mainCss = _getResourcePath('csvEditorHtml/main.css')
-	const darkThemeCss = _getResourcePath('csvEditorHtml/dark.css')
-	const lightThemeCss = _getResourcePath('csvEditorHtml/light.css')
-	const hightContrastThemeCss = _getResourcePath('csvEditorHtml/high_contrast.css')
-	const settingsOverwriteCss = _getResourcePath('csvEditorHtml/settingsOverwrite.css')
 
 	//scripts
 	const progressJs = _getResourcePath('csvEditorHtml/out/progressbar.js')
@@ -961,7 +967,7 @@ export function createEditorHtml(webview: vscode.Webview, context: vscode.Extens
 	<!DOCTYPE html>
 	<html>
 	<head>
-		<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; script-src ${webview.cspSource} 'unsafe-inline'; style-src ${webview.cspSource} 'unsafe-inline'; font-src ${webview.cspSource};">
+		<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data: https:; script-src ${webview.cspSource} 'unsafe-inline'; style-src ${webview.cspSource} 'unsafe-inline' https:; font-src ${webview.cspSource} https: data:;">
 
 		<style>
 			@font-face {
@@ -980,12 +986,12 @@ export function createEditorHtml(webview: vscode.Webview, context: vscode.Extens
 		<link rel="stylesheet" href="${fontAwesomeCss}">
 
 		<link rel="stylesheet" href="${mainCss}">
-		<!-- fixes issue #133, when we run it with 'code-server' -->
+		${isDev ? `<!-- fixes issue #133, when we run it with 'code-server' -->
 		<!-- we need to add this because we want to modify some rules (variables) in it via js -->
 		<link rel="stylesheet" crossorigin="anonymous" href="${darkThemeCss}">
 		<link rel="stylesheet" crossorigin="anonymous" href="${lightThemeCss}">
 		<link rel="stylesheet" href="${hightContrastThemeCss}">
-		<link rel="stylesheet" href="${settingsOverwriteCss}">
+		<link rel="stylesheet" href="${settingsOverwriteCss}">` : '<!-- All CSS combined in main-cdn.min.css -->'}
 	</head>
 	<body class="vs-code vs-code-settings-font-size">
 	<script>
