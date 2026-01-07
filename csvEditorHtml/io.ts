@@ -540,9 +540,15 @@ function handleVsCodeMessage(event: { data: ReceivedMessageFromVsCode }) {
 		}
 
 		default: {
-			_error('received unknown message from vs code')
-			notExhaustiveSwitch(message)
-			break
+			try {
+				const messageStr =
+					typeof message === "string" ? message : JSON.stringify(message);
+
+				if (!/"rpc_[a-zA-Z0-9]+"/.test(messageStr)) {
+					_error('received unknown message from vs code')
+					notExhaustiveSwitch(message)
+				}
+			} catch {}
 		}
 	}
 
