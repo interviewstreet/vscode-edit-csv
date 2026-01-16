@@ -633,6 +633,12 @@ function displayData(this: any, csvParseResult: ExtendedCsvParseResult | null, c
 		currentRowClassName: 'foo', //actually used to overwrite highlighting
 		//plugins
 		comments: false,
+		/**
+		 * HR-specific: Prevent copying content from the CSV file.
+		 * When CSV content is copied and pasted elsewhere, it is mistakenly
+		 * identified as data coming from an external source.
+		 */
+		copyPaste: false,
 		autoWrapRow: initialConfig?.lastColumnOrFirstColumnNavigationBehavior === 'stop' ? false : true, //seems wrong, but this way around is correct...
 		autoWrapCol: initialConfig?.lastRowOrFirstRowNavigationBehavior === 'stop' ? false : true, //seems wrong, but this way around is correct...
 		search: {
@@ -655,268 +661,273 @@ function displayData(this: any, csvParseResult: ExtendedCsvParseResult | null, c
 		fixedRowsTop: fixedRowsTop,
 		fixedColumnsLeft: fixedColumnsLeft,
 		//see https://handsontable.com/docs/7.1.0/demo-context-menu.html
+		// HR-Specific Change
 		contextMenu: {
 			subMenuOpenDelayInMs: 100,
-			items: {
-				'row_above': {
-					callback: function () { //key, selection, clickEvent
-						insertRowAbove()
-					},
-					disabled: function () {
-						return isReadonlyMode
-					}
-				},
-				'row_below': {
-					callback: function () { //key, selection, clickEvent
-						insertRowBelow()
-					},
-					disabled: function () {
-						return isReadonlyMode
-					}
-				},
-				'---------': {
-					name: '---------'
-				},
-				'col_left': {
-					callback: function () { //key, selection, clickEvent
-						insertColLeft()
-					},
-					disabled: function () {
-						return isReadonlyMode
-					}
-				},
-				'col_right': {
-					callback: function () { //key, selection, clickEvent
-						insertColRight()
-					},
-					disabled: function () {
-						return isReadonlyMode
-					}
-				},
-				'---------2': {
-					name: '---------'
-				},
-				'remove_row': {
-					disabled: function () {
-
-						return getIsCallRemoveRowContextMenuActionDisabled()
-					},
-				},
-				'remove_col': {
-					disabled: function () {
-
-						if (isReadonlyMode) return true
-
-						const selection = hot!.getSelected()
-						let allColsAreSelected = false
-						if (selection) {
-							const selectedColsCount = Math.abs(selection[0][1] - selection[0][3]) //starts at 0 --> +1
-							allColsAreSelected = hot!.countCols() === selectedColsCount + 1
-						}
-
-						return hot!.countCols() === 1 || allColsAreSelected
-					}
-				},
-				'---------3': {
-					name: '---------'
-				},
-				'alignment': {},
-				'hide_columns': {
-					name: 'Hide column(s)',
-					callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
-						if (!hot) return
-						// if (!headerRowWithIndex) return
-						if (selection.length > 1) return
-
-						let _selection = selection[0]
-
-						let columnIndicesToHide: number[] = []
-
-						for (let targetCol = _selection.start.col; targetCol <= _selection.end.col; targetCol++) {
-							columnIndicesToHide.push(targetCol)
-						}
-
-						_hideColumnByIndices(columnIndicesToHide)
-					},
-					disabled: function () {
-						return isReadonlyMode //TODO when all columns are hidden?
-					}
-				},
-				'copy_column_header_name': {
-					name: 'Copy column name(s)',
-					callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
-
-						const showColumnHeaderNamesWithLettersLikeExcel = initialConfig?.showColumnHeaderNamesWithLettersLikeExcel ?? false
-						const columnNamesToCopy: string[] = []
-
-						for (let i = 0; i < selection.length; i++) {
-							const singleSelection=  selection[i]
-							
-							for (let j = singleSelection.start.col; j <= singleSelection.end.col; j++) {
-								
-								if (headerRowWithIndex) {
-									columnNamesToCopy.push(`` + headerRowWithIndex.row[j])
-								} else {
-									//we only have `column 1`, `column 2`, ... as names
-									const visualCol = hot!.toPhysicalColumn(j)
-									let colName = showColumnHeaderNamesWithLettersLikeExcel
-										? spreadsheetColumnLetterLabel(visualCol)
-										: getSpreadsheetColumnLabel(visualCol)
-										columnNamesToCopy.push(colName)
-								}
-							}
-						}
-
-						const colNamesString = columnNamesToCopy.join(initialConfig?.copyColumnHeaderNamesSeparator ?? `, `)
-						// console.log(`columnNamesToCopy`, colNamesString)
-
-						if (!isBrowser) {
-							postCopyToClipboard(colNamesString)
-						} else {
-							copyTextToClipboardBrowser(colNamesString)
-						}
-						
-					},
-				},
-				'edit_header_cell': {
-					name: 'Edit header cell',
-					hidden: function () {
-						//there is no selection for header cells...
-						let selectedRanges = hot!.getSelected()
-
-						//only one range is selected
-						if (selectedRanges?.length !== 1) return true
-
-						//only one column is selected
-						if (selectedRanges[0][1] !== selectedRanges[0][3]) return true
-
-						//the whole col must be selected then we clicked the header cell
-						let maxRowIndex = hot!.countRows() - 1
-						if (selectedRanges[0][0] !== 0 || selectedRanges[0][2] !== maxRowIndex) return true
-
-						//must have custom header cells
-						if (!defaultCsvReadOptions._hasHeader) return true
-
-						if (!headerRowWithIndex) return true
-
-						return false
-					},
-					callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
-						if (!headerRowWithIndex) return
-						if (selection.length > 1) return
-
-						let targetCol = selection[0].start.col
-
-						showColHeaderNameEditor(targetCol)
-					},
-					disabled: function () {
-						return isReadonlyMode
-					}
-				},
-				'resize_row_header_cell': {
-					name: `Resize row to ${initialConfig?.doubleClickRowHandleForcedHeight ?? 106}px`,
-					callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
-
-						if (!hot) return
-
-						let plugin = hot!.getPlugin('manualRowResize')
-
-						let desiredColWidth = initialConfig?.doubleClickRowHandleForcedHeight ?? 106
-
-						//also allow resizing multiple cols at once
-						for (let i = selection[0].start.row; i <= selection[0].end.row; i++) {
-							// let colWidth = hot!.getColWidth(i)
-							// allColWidths[i] = desiredColWidth
-							plugin.setManualSize(i, desiredColWidth)
-						}
-
-						//from the onMouseUp handler of the manualRowResize plugin
-						//@ts-ignore
-						hot.forceFullRender = true;
-						//@ts-ignore
-						hot.view.render(); // updates all
-						//@ts-ignore
-						hot.view.wt.wtOverlays.adjustElementsSize(true);
-						//we don't run before and after resize hooks... no idea what they do
-					}
-				},
-				'resize_column_header_cell': {
-					name: `Resize column to ${initialConfig?.doubleClickColumnHandleForcedWith ?? 200}px`,
-					callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
-
-						let plugin = hot!.getPlugin('manualColumnResize')
-
-						let desiredColWidth = initialConfig?.doubleClickColumnHandleForcedWith ?? 200
-
-						//also allow resizing multiple cols at once
-						for (let i = selection[0].start.col; i <= selection[0].end.col; i++) {
-							// let colWidth = hot!.getColWidth(i)
-							// allColWidths[i] = desiredColWidth
-							plugin.setManualSize(i, desiredColWidth)
-						}
-
-						//from the onMouseUp handler of the manualRowResize plugin
-						//@ts-ignore
-						hot.forceFullRender = true;
-						//@ts-ignore
-						hot.view.render(); // updates all
-						//@ts-ignore
-						hot.view.wt.wtOverlays.adjustElementsSize(true);
-						//we don't run before and after resize hooks... no idea what they do
-
-						//should be up-to-date but to be sure
-						// syncColWidths()
-						// applyColWidths(false)
-					}
-				},
-				'unhide_all_columns': {
-					name: 'Unhide all columns',
-					callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
-						_unhideAllColumns()
-					},
-					disabled: function () {
-						return hiddenPhysicalColumnIndicesSorted.length === 0
-					}
-				},
-				'set_multiple_cursors': {
-					name: 'Selection to file cursors',
-					hidden: function () {
-						//don't show in browser
-						if (!vscode) return true
-						return false
-					},
-					disabled: function() {
-						return hasOriginalTableStructuralChanges
-					},
-					submenu: {
-						items: [
-							{
-								key: 'set_multiple_cursors:option1',
-								name: 'Cursor at cell start',
-								callback: function (key: string, selections: HandsontableSelection[], clickEvent: Event) {
-									postSetMultipleCursors(calculateSourceFileCursorPositions2(selections, 'start'))
-								},
-							},
-							{
-								key: 'set_multiple_cursors:option2',
-								name: 'Cursor at cell end',
-								callback: function (key: string, selections: HandsontableSelection[], clickEvent: Event) {
-									postSetMultipleCursors(calculateSourceFileCursorPositions2(selections, 'end'))
-								},
-							},
-							{
-								key: 'set_multiple_cursors:option3',
-								name: 'Cursor select entire cell',
-								callback: function (key: string, selections: HandsontableSelection[], clickEvent: Event) {
-									postSetMultipleCursors(calculateSourceFileCursorPositions2(selections, 'entire'))
-								},
-							},
-						]
-					}
-				}
-
-			}
+			items: {}
 		} as ContextMenuSettings,
+		// contextMenu: {
+		// 	subMenuOpenDelayInMs: 100,
+		// 	items: {
+		// 		'row_above': {
+		// 			callback: function () { //key, selection, clickEvent
+		// 				insertRowAbove()
+		// 			},
+		// 			disabled: function () {
+		// 				return isReadonlyMode
+		// 			}
+		// 		},
+		// 		'row_below': {
+		// 			callback: function () { //key, selection, clickEvent
+		// 				insertRowBelow()
+		// 			},
+		// 			disabled: function () {
+		// 				return isReadonlyMode
+		// 			}
+		// 		},
+		// 		'---------': {
+		// 			name: '---------'
+		// 		},
+		// 		'col_left': {
+		// 			callback: function () { //key, selection, clickEvent
+		// 				insertColLeft()
+		// 			},
+		// 			disabled: function () {
+		// 				return isReadonlyMode
+		// 			}
+		// 		},
+		// 		'col_right': {
+		// 			callback: function () { //key, selection, clickEvent
+		// 				insertColRight()
+		// 			},
+		// 			disabled: function () {
+		// 				return isReadonlyMode
+		// 			}
+		// 		},
+		// 		'---------2': {
+		// 			name: '---------'
+		// 		},
+		// 		'remove_row': {
+		// 			disabled: function () {
+
+		// 				return getIsCallRemoveRowContextMenuActionDisabled()
+		// 			},
+		// 		},
+		// 		'remove_col': {
+		// 			disabled: function () {
+
+		// 				if (isReadonlyMode) return true
+
+		// 				const selection = hot!.getSelected()
+		// 				let allColsAreSelected = false
+		// 				if (selection) {
+		// 					const selectedColsCount = Math.abs(selection[0][1] - selection[0][3]) //starts at 0 --> +1
+		// 					allColsAreSelected = hot!.countCols() === selectedColsCount + 1
+		// 				}
+
+		// 				return hot!.countCols() === 1 || allColsAreSelected
+		// 			}
+		// 		},
+		// 		'---------3': {
+		// 			name: '---------'
+		// 		},
+		// 		'alignment': {},
+		// 		'hide_columns': {
+		// 			name: 'Hide column(s)',
+		// 			callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
+		// 				if (!hot) return
+		// 				// if (!headerRowWithIndex) return
+		// 				if (selection.length > 1) return
+
+		// 				let _selection = selection[0]
+
+		// 				let columnIndicesToHide: number[] = []
+
+		// 				for (let targetCol = _selection.start.col; targetCol <= _selection.end.col; targetCol++) {
+		// 					columnIndicesToHide.push(targetCol)
+		// 				}
+
+		// 				_hideColumnByIndices(columnIndicesToHide)
+		// 			},
+		// 			disabled: function () {
+		// 				return isReadonlyMode //TODO when all columns are hidden?
+		// 			}
+		// 		},
+		// 		'copy_column_header_name': {
+		// 			name: 'Copy column name(s)',
+		// 			callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
+
+		// 				const showColumnHeaderNamesWithLettersLikeExcel = initialConfig?.showColumnHeaderNamesWithLettersLikeExcel ?? false
+		// 				const columnNamesToCopy: string[] = []
+
+		// 				for (let i = 0; i < selection.length; i++) {
+		// 					const singleSelection=  selection[i]
+							
+		// 					for (let j = singleSelection.start.col; j <= singleSelection.end.col; j++) {
+								
+		// 						if (headerRowWithIndex) {
+		// 							columnNamesToCopy.push(`` + headerRowWithIndex.row[j])
+		// 						} else {
+		// 							//we only have `column 1`, `column 2`, ... as names
+		// 							const visualCol = hot!.toPhysicalColumn(j)
+		// 							let colName = showColumnHeaderNamesWithLettersLikeExcel
+		// 								? spreadsheetColumnLetterLabel(visualCol)
+		// 								: getSpreadsheetColumnLabel(visualCol)
+		// 								columnNamesToCopy.push(colName)
+		// 						}
+		// 					}
+		// 				}
+
+		// 				const colNamesString = columnNamesToCopy.join(initialConfig?.copyColumnHeaderNamesSeparator ?? `, `)
+		// 				// console.log(`columnNamesToCopy`, colNamesString)
+
+		// 				if (!isBrowser) {
+		// 					postCopyToClipboard(colNamesString)
+		// 				} else {
+		// 					copyTextToClipboardBrowser(colNamesString)
+		// 				}
+						
+		// 			},
+		// 		},
+		// 		'edit_header_cell': {
+		// 			name: 'Edit header cell',
+		// 			hidden: function () {
+		// 				//there is no selection for header cells...
+		// 				let selectedRanges = hot!.getSelected()
+
+		// 				//only one range is selected
+		// 				if (selectedRanges?.length !== 1) return true
+
+		// 				//only one column is selected
+		// 				if (selectedRanges[0][1] !== selectedRanges[0][3]) return true
+
+		// 				//the whole col must be selected then we clicked the header cell
+		// 				let maxRowIndex = hot!.countRows() - 1
+		// 				if (selectedRanges[0][0] !== 0 || selectedRanges[0][2] !== maxRowIndex) return true
+
+		// 				//must have custom header cells
+		// 				if (!defaultCsvReadOptions._hasHeader) return true
+
+		// 				if (!headerRowWithIndex) return true
+
+		// 				return false
+		// 			},
+		// 			callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
+		// 				if (!headerRowWithIndex) return
+		// 				if (selection.length > 1) return
+
+		// 				let targetCol = selection[0].start.col
+
+		// 				showColHeaderNameEditor(targetCol)
+		// 			},
+		// 			disabled: function () {
+		// 				return isReadonlyMode
+		// 			}
+		// 		},
+		// 		'resize_row_header_cell': {
+		// 			name: `Resize row to ${initialConfig?.doubleClickRowHandleForcedHeight ?? 106}px`,
+		// 			callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
+
+		// 				if (!hot) return
+
+		// 				let plugin = hot!.getPlugin('manualRowResize')
+
+		// 				let desiredColWidth = initialConfig?.doubleClickRowHandleForcedHeight ?? 106
+
+		// 				//also allow resizing multiple cols at once
+		// 				for (let i = selection[0].start.row; i <= selection[0].end.row; i++) {
+		// 					// let colWidth = hot!.getColWidth(i)
+		// 					// allColWidths[i] = desiredColWidth
+		// 					plugin.setManualSize(i, desiredColWidth)
+		// 				}
+
+		// 				//from the onMouseUp handler of the manualRowResize plugin
+		// 				//@ts-ignore
+		// 				hot.forceFullRender = true;
+		// 				//@ts-ignore
+		// 				hot.view.render(); // updates all
+		// 				//@ts-ignore
+		// 				hot.view.wt.wtOverlays.adjustElementsSize(true);
+		// 				//we don't run before and after resize hooks... no idea what they do
+		// 			}
+		// 		},
+		// 		'resize_column_header_cell': {
+		// 			name: `Resize column to ${initialConfig?.doubleClickColumnHandleForcedWith ?? 200}px`,
+		// 			callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
+
+		// 				let plugin = hot!.getPlugin('manualColumnResize')
+
+		// 				let desiredColWidth = initialConfig?.doubleClickColumnHandleForcedWith ?? 200
+
+		// 				//also allow resizing multiple cols at once
+		// 				for (let i = selection[0].start.col; i <= selection[0].end.col; i++) {
+		// 					// let colWidth = hot!.getColWidth(i)
+		// 					// allColWidths[i] = desiredColWidth
+		// 					plugin.setManualSize(i, desiredColWidth)
+		// 				}
+
+		// 				//from the onMouseUp handler of the manualRowResize plugin
+		// 				//@ts-ignore
+		// 				hot.forceFullRender = true;
+		// 				//@ts-ignore
+		// 				hot.view.render(); // updates all
+		// 				//@ts-ignore
+		// 				hot.view.wt.wtOverlays.adjustElementsSize(true);
+		// 				//we don't run before and after resize hooks... no idea what they do
+
+		// 				//should be up-to-date but to be sure
+		// 				// syncColWidths()
+		// 				// applyColWidths(false)
+		// 			}
+		// 		},
+		// 		'unhide_all_columns': {
+		// 			name: 'Unhide all columns',
+		// 			callback: function (key: string, selection: Array<{ start: { col: number, row: number }, end: { col: number, row: number } }>, clickEvent: Event) {
+		// 				_unhideAllColumns()
+		// 			},
+		// 			disabled: function () {
+		// 				return hiddenPhysicalColumnIndicesSorted.length === 0
+		// 			}
+		// 		},
+		// 		'set_multiple_cursors': {
+		// 			name: 'Selection to file cursors',
+		// 			hidden: function () {
+		// 				//don't show in browser
+		// 				if (!vscode) return true
+		// 				return false
+		// 			},
+		// 			disabled: function() {
+		// 				return hasOriginalTableStructuralChanges
+		// 			},
+		// 			submenu: {
+		// 				items: [
+		// 					{
+		// 						key: 'set_multiple_cursors:option1',
+		// 						name: 'Cursor at cell start',
+		// 						callback: function (key: string, selections: HandsontableSelection[], clickEvent: Event) {
+		// 							postSetMultipleCursors(calculateSourceFileCursorPositions2(selections, 'start'))
+		// 						},
+		// 					},
+		// 					{
+		// 						key: 'set_multiple_cursors:option2',
+		// 						name: 'Cursor at cell end',
+		// 						callback: function (key: string, selections: HandsontableSelection[], clickEvent: Event) {
+		// 							postSetMultipleCursors(calculateSourceFileCursorPositions2(selections, 'end'))
+		// 						},
+		// 					},
+		// 					{
+		// 						key: 'set_multiple_cursors:option3',
+		// 						name: 'Cursor select entire cell',
+		// 						callback: function (key: string, selections: HandsontableSelection[], clickEvent: Event) {
+		// 							postSetMultipleCursors(calculateSourceFileCursorPositions2(selections, 'entire'))
+		// 						},
+		// 					},
+		// 				]
+		// 			}
+		// 		}
+
+		// 	}
+		// } as ContextMenuSettings,
 		beforeColumnSort: function (currentSortConfig, destinationSortConfigs) {
 
 			//we cannot use the setting columnSorting because this would remove the hidden indicators, this would change the column width...
