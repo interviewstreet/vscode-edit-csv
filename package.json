@@ -2,7 +2,7 @@
 	"name": "vscode-edit-csv",
 	"displayName": "Edit CSV",
 	"description": "extension to edit csv files with a table ui",
-	"version": "0.11.7",
+	"version": "0.11.10",
 	"license": "MIT",
 	"icon": "images/logo.png",
 	"publisher": "janisdd",
@@ -157,6 +157,88 @@
 				},
 				{
 					"when": "resourceLangId == 'dynamic csv' && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				}
+			],
+			"editor/title/context": [
+				{
+					"when": "resourceLangId == csv && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == tsv && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == CSV && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == TSV && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'CSV (semicolon)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (semicolon)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (pipe)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (whitespace)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (tilde)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (caret)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (colon)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (double quote)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (equals)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (dot)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'csv (hyphen)' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
+					"command": "edit-csv.edit",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == 'dynamic csv' && resourceScheme != csv-edit && !config.csv-edit.hideOpenCsvEditorUiActions",
 					"command": "edit-csv.edit",
 					"group": "navigation"
 				}
@@ -794,15 +876,13 @@
 		"@types/readline-sync": "1.4.3",
 		"@types/vscode": "1.70.0",
 		"@vitest/browser": "3.0.8",
-		"@vscode/test-cli": "0.0.10",
 		"@vscode/test-electron": "2.4.1",
 		"bulma-toast": "2.0.3",
 		"chardet": "1.2.1",
 		"fs-extra": "9.0.1",
 		"glob": "7.1.6",
 		"iconv-lite": "0.6.2",
-		"jsdom": "16.7.0",
-		"mocha": "11.0.1",
+		"jsdom": "28.1.0",
 		"playwright": "1.56.1",
 		"readline-sync": "1.4.10",
 		"sweetalert2": "9.17.2",
