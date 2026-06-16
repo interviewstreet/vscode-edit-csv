@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+# 0.11.10
+- fixed issue #219 - Empty QuoteChar not respected
+  - updated papaparse to support empty `quoteChar` in read and write config
+
+# 0.11.9
+- merged pr #229 - Add 'Edit CSV' to editor tab context menu
+  - this also fixes a small bug with the `explorer/context` where opening the table would fail
+
+# 0.11.8
+- fixed issue #216 - cell with invalid urls (starts as a url but is actually invalid) render no content
+
 # 0.11.7
 - fixed issue #208 - added option `columnNamesStartIndexOffset` to control which number the first column gets
 
