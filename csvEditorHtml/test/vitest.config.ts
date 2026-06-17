@@ -2,6 +2,18 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
 
+  // esbuild 0.28+ no longer downlevels some syntax (e.g. destructuring) to Vite's
+  // default browser target. These browser tests run in modern headless Chromium,
+  // so use a modern target for dependency optimization and source transforms.
+  esbuild: {
+    target: 'es2022',
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'es2022',
+    },
+  },
+
   test: {
     browser: {
       enabled: true,

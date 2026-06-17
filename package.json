@@ -864,6 +864,10 @@
 		"@vscode/webview-ui-toolkit": "1.0.0",
 		"dayjs": "1.11.13"
 	},
+	"overrides": {
+		"vite": "6.4.3",
+		"esbuild": "0.28.1"
+	},
 	"devDependencies": {
 		"@sweetalert2/theme-dark": "3.2.0",
 		"@types/big.js": "4.0.5",
@@ -875,7 +879,7 @@
 		"@types/node": "18.11.9",
 		"@types/readline-sync": "1.4.3",
 		"@types/vscode": "1.70.0",
-		"@vitest/browser": "3.0.8",
+		"@vitest/browser": "3.2.6",
 		"@vscode/test-electron": "2.4.1",
 		"bulma-toast": "2.0.3",
 		"chardet": "1.2.1",
@@ -889,6 +893,6 @@
 		"toaster-js": "2.2.3",
 		"tslint": "5.8.0",
 		"typescript": "5.0.4",
-		"vitest": "3.0.8"
+		"vitest": "3.2.6"
 	}
 }
