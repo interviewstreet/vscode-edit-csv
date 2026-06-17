@@ -2495,7 +2495,7 @@ function startReceiveCsvProgBar() {
 }
 
 function intermediateReceiveCsvProgBar() {
-	receivedCsvProgBar.attributes.removeNamedItem('value')
+	receivedCsvProgBar.removeAttribute('value')
 }
 
 function stopReceiveCsvProgBar() {

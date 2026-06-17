@@ -18,7 +18,7 @@ var initialVars: InitialVars = {
 }
 
 var initialConfig: EditCsvConfig | undefined = {
-	highlightCsvComments: true,
+	highlightCsvComments: false,
 	lastRowEnterBehavior: 'default',
 	lastColumnTabBehavior: 'default',
 	lastRowOrFirstRowNavigationBehavior: 'stop',
@@ -42,10 +42,10 @@ var initialConfig: EditCsvConfig | undefined = {
 	selectTextAfterBeginEditCell: false,
 	quoteAllFields: false,
 	quoteEmptyOrNullFields: 'false',
-	initiallyHideComments: false,
+	initiallyHideComments: true,
 	autoColumnWidthsIgnoreComments: true,
-	enableWrapping: true,
-	initialColumnWidth: 0,
+	enableWrapping: false,
+	initialColumnWidth: 200,
 	retainQuoteInformation: 'full',
 	forceQuoteLeadingWhitespace: false,
 	forceQuoteTrailingWhitespace: false,
@@ -61,7 +61,7 @@ var initialConfig: EditCsvConfig | undefined = {
 	initialNumbersStyle: 'en',
 	insertRowBehavior: 'keepRowKeepColumn',
 	insertColBehavior: 'keepRowKeepColumn',
-	initiallyIsInReadonlyMode: false,
+	initiallyIsInReadonlyMode: true,
 	hideOpenCsvEditorUiActions: false, //noop, has only effect if set inside the user settings (vs code extension)
 	openTableAndSelectCellAtCursorPos: "never",
 	pasteMode: 'normal',
