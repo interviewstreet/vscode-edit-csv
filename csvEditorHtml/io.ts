@@ -540,8 +540,7 @@ function handleVsCodeMessage(event: { data: ReceivedMessageFromVsCode }) {
 		}
 
 		default: {
-			_error('received unknown message from vs code')
-			notExhaustiveSwitch(message)
+			console.error('received unknown message from vs code', message)
 			break
 		}
 	}
@@ -561,10 +560,6 @@ function onReceiveCsvContentSlice(slice: StringSlice) {
 	// console.log(`% = ${receivedCsvProgBar.value}`)
 
 	if (slice.sliceNr === slice.totalSlices) {
-		// intermediateReceiveCsvProgBar() //now showing because ui thread is blocked
-
-		stopReceiveCsvProgBar()
-
 		startRenderData()
 	}
 }
@@ -576,6 +571,7 @@ function onReceiveCsvContentSlice(slice: StringSlice) {
 function startRenderData() {
 
 	statusInfo.innerText = `Rendering table...`
+	intermediateReceiveCsvProgBar()
 	hasOriginalTableStructuralChanges = false
 
 	//TODO as we don't longer use undo/redo with has header option this might not be necessary any longer...
@@ -596,11 +592,12 @@ function startRenderData() {
 
 		//profiling shows that handsontable calls some column resize function which causes the last hang...
 		//status display should be cleared after the handsontable operation so enqueue
-		if (!defaultCsvReadOptions._hasHeader) { //when we apply header this will reset the status for us
-			setTimeout(() => {
+		setTimeout(() => {
+			stopReceiveCsvProgBar()
+			if (!defaultCsvReadOptions._hasHeader) { //when we apply header this will reset the status for us
 				statusInfo.innerText = '';
-			}, 0)
-		}
+			}
+		}, 0)
 
 	})
 

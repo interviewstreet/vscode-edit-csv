@@ -5,7 +5,7 @@ import { limitSingleCharacterString } from "./util";
 
 
 const defaultConfig: EditCsvConfig = {
-	highlightCsvComments: true,
+	highlightCsvComments: false,
 	lastRowEnterBehavior: 'default',
 	lastColumnTabBehavior: 'default',
 	lastRowOrFirstRowNavigationBehavior: 'wrap',
@@ -29,9 +29,9 @@ const defaultConfig: EditCsvConfig = {
 	selectTextAfterBeginEditCell: false,
 	quoteAllFields: false,
 	quoteEmptyOrNullFields: 'false',
-	initiallyHideComments: false,
-	enableWrapping: true,
-	initialColumnWidth: 0,
+	initiallyHideComments: true,
+	enableWrapping: false,
+	initialColumnWidth: 200,
 	autoColumnWidthsIgnoreComments: true,
 	retainQuoteInformation: 'full',
 	forceQuoteLeadingWhitespace: false,
@@ -48,7 +48,7 @@ const defaultConfig: EditCsvConfig = {
 	initialNumbersStyle: 'en',
 	insertRowBehavior: 'keepRowKeepColumn',
 	insertColBehavior: 'keepRowKeepColumn',
-	initiallyIsInReadonlyMode: false,
+	initiallyIsInReadonlyMode: true,
 	hideOpenCsvEditorUiActions: false, //noop, has only effect if set inside the user settings
 	openTableAndSelectCellAtCursorPos: "initialOnly_correctRowAlwaysFirstColumn",
 	pasteMode: 'normal',

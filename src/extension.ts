@@ -66,15 +66,25 @@ export function activate(context: vscode.ExtensionContext) {
 	const editCsvCommand = vscode.commands.registerCommand('edit-csv.edit', (uri?: vscode.Uri) => {
 
 		// If a URI was passed (e.g. from tab context menu or explorer context menu),
-		// open that document first so it becomes the active editor before proceeding.
+		// load that document without revealing the source editor. Revealing large CSVs
+		// can trigger VS Code's built-in large-file optimization notification.
 		if (uri && (!vscode.window.activeTextEditor || vscode.window.activeTextEditor.document.uri.toString() !== uri.toString())) {
 			vscode.workspace.openTextDocument(uri).then(document => {
-				vscode.window.showTextDocument(document, { preview: false }).then(() => {
-					const shouldOpenEditor = beforeEditCsvCheck(instanceManager)
-					if (!shouldOpenEditor) return
-					if (!vscode.window.activeTextEditor) return
-					createNewEditorInstance(context, vscode.window.activeTextEditor, instanceManager)
-				})
+				if (!isCsvFile(document)) {
+					vscode.window.showInformationMessage("Open a csv file first to show the csv editor or file too large (> 50MB)")
+					return
+				}
+
+				const oldInstance = instanceManager.findInstanceBySourceUri(document.uri)
+				if (oldInstance) {
+					oldInstance.panel.reveal()
+					return
+				}
+
+				createNewEditorInstance(context, {
+					document,
+					selection: new vscode.Selection(0, 0, 0, 0)
+				}, instanceManager)
 			})
 			return
 		}
@@ -292,7 +302,12 @@ function beforeEditCsvCheck(instanceManager: InstanceManager): boolean {
 	return true
 }
 
-function createNewEditorInstance(context: vscode.ExtensionContext, activeTextEditor: vscode.TextEditor, instanceManager: InstanceManager, overwriteSettings: EditCsvConfigOverwrite | null = null): void {
+function createNewEditorInstance(
+	context: vscode.ExtensionContext,
+	activeTextEditor: Pick<vscode.TextEditor, 'document' | 'selection'>,
+	instanceManager: InstanceManager,
+	overwriteSettings: EditCsvConfigOverwrite | null = null
+): void {
 
 	const uri = activeTextEditor.document.uri
 
@@ -550,7 +565,10 @@ function createNewEditorInstance(context: vscode.ExtensionContext, activeTextEdi
 			// 	break
 			// }
 
-			default: notExhaustive(message, `Received unknown post message from extension: ${JSON.stringify(message)}`)
+			default: {
+				console.error(`Received unknown post message from extension: ${JSON.stringify(message)}`)
+				break
+			}
 		}
 
 	}, undefined, context.subscriptions)
@@ -836,11 +854,6 @@ function getActiveEditorInstance(instanceManager: InstanceManager): Instance | n
 	return instance
 }
 
-function notExhaustive(x: never, message: string): never {
-	vscode.window.showErrorMessage(message);
-	throw new Error(message)
-}
-
 function setEditorHasChanges(instance: Instance, hasChanges: boolean) {
 	instance.panel.title = `${hasChanges ? '* ' : ''}${instance.originalTitle}`
 }
@@ -949,4 +962,3 @@ function setMultipleCursorsInSourceFile(instance: Instance, positions: FilePosit
 // 		CsvEditStateSerializer.state = state
 // 	}
 // }
-

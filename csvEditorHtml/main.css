@@ -198,13 +198,13 @@ input.input {
 
 #received-csv-prog-bar {
 	height: 5px;
+	width: 100%;
+	margin: 0;
 }
 #received-csv-prog-bar-wrapper {
-	font-display: none;
-	position: absolute;
-	left:0;
-	right:0;
-	bottom:-8px;
+	display: none;
+	height: 5px;
+	margin: 0 0 4px;
 }
 
 .preview-csv-textarea {

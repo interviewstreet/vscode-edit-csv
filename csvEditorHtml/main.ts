@@ -169,7 +169,7 @@ let lastHandsonMoveWas: 'tab' | 'enter' | null = null
  * true: the cell/row color is changed if the first cell is a comment, (might have negative impact on performance e.g. for large data sets),
  * false: no additional highlighting (comments are still treated as comments)
  */
-let highlightCsvComments: boolean = true
+let highlightCsvComments: boolean = false
 
 /**
  * true: new columns will get true as quote information (also for added columns via expanding),
@@ -181,7 +181,7 @@ let newColumnQuoteInformationIsQuoted: boolean = false
  * true: cell content is wrapped and the row height is changed,
  * false: no wrapping (content is hidden)
  */
-let enableWrapping: boolean = true
+let enableWrapping: boolean = false
 
 /**
  * true: borders are set to 0 (in css). This helps if you encounter some border color issues,
@@ -209,7 +209,7 @@ let isCurrentlyChangingHasHeader = false
 /**
  * the initial width for columns, 0 or a negative number will disable this and auto column size is used on initial render
  */
-let initialColumnWidth: number = 0
+let initialColumnWidth: number = 200
 
 /**
  * we use {@link EditCsvConfig.initiallyHiddenColumns} to set this
@@ -230,7 +230,7 @@ let shouldApplyHasHeaderAfterRowsAdded = false
  * table is editable or not, also disables some related ui, e.g. buttons
  * set via {@link EditCsvConfig.initiallyIsInReadonlyMode}
  */
-let isReadonlyMode = false
+let isReadonlyMode = true
 
 /**
  * the original csv file has a layout and sometimes we use the original positions

@@ -5,7 +5,7 @@ const vscode = require("vscode");
 const extension_1 = require("./extension");
 const util_1 = require("./util");
 const defaultConfig = {
-    highlightCsvComments: true,
+    highlightCsvComments: false,
     lastRowEnterBehavior: 'default',
     lastColumnTabBehavior: 'default',
     lastRowOrFirstRowNavigationBehavior: 'wrap',
@@ -29,9 +29,9 @@ const defaultConfig = {
     selectTextAfterBeginEditCell: false,
     quoteAllFields: false,
     quoteEmptyOrNullFields: 'false',
-    initiallyHideComments: false,
-    enableWrapping: true,
-    initialColumnWidth: 0,
+    initiallyHideComments: true,
+    enableWrapping: false,
+    initialColumnWidth: 200,
     autoColumnWidthsIgnoreComments: true,
     retainQuoteInformation: 'full',
     forceQuoteLeadingWhitespace: false,
@@ -48,7 +48,7 @@ const defaultConfig = {
     initialNumbersStyle: 'en',
     insertRowBehavior: 'keepRowKeepColumn',
     insertColBehavior: 'keepRowKeepColumn',
-    initiallyIsInReadonlyMode: false,
+    initiallyIsInReadonlyMode: true,
     hideOpenCsvEditorUiActions: false,
     openTableAndSelectCellAtCursorPos: "initialOnly_correctRowAlwaysFirstColumn",
     pasteMode: 'normal',

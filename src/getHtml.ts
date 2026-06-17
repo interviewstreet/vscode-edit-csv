@@ -156,7 +156,7 @@ export function createEditorHtml(webview: vscode.Webview, context: vscode.Extens
 		bodyPageHtml= /*html*/`
 		<div id="full-page" class="page full-h">
 
-			<div id="all-options" class="all-options">
+			<div id="all-options" class="all-options" style="display: none;">
 
 				<table>
 					<thead>
@@ -505,7 +505,7 @@ export function createEditorHtml(webview: vscode.Webview, context: vscode.Extens
 
 			</div>
 
-			<div id="table-actions" class="table-action-buttons">
+			<div id="table-actions" class="table-action-buttons" style="display: none;">
 
 				<div class="separated-btns">
 
@@ -637,13 +637,14 @@ export function createEditorHtml(webview: vscode.Webview, context: vscode.Extens
 					</div>
 
 				</div>
+				</div>
+
 				<div id="received-csv-prog-bar-wrapper">
 					<progress id="received-csv-prog-bar" class="progress is-info" value="50" max="100"></progress>
 				</div>
-			</div>
 
 
-			<!-- main editor/grid area -->
+				<!-- main editor/grid area -->
 			<div class="side-paneled">
 				<div id="side-panel" class="side-panel">
 
